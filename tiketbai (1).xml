@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+  <Saltzaileak>
+    <Saltzailea id="1" izena="Lander" />
+    <Saltzailea id="2" izena="Ander" />
+    <Saltzailea id="3" izena="Mateo" />
+    <Saltzailea id="4" izena="Unai" />
+    <Saltzailea id="5" izena="Eber" />
+    <Saltzailea id="6" izena="Igor" />
+    <Saltzailea id="7" izena="Mario" />
+  </Saltzaileak>
+
+  <Baskula izena="frutategia">
+    <tiketa>
+      <Produktua>Sagarra</Produktua>
+      <Saltzailea>1</Saltzailea>
+      <Kiloak>2.50</Kiloak>
+      <PrezioKg>1.20</PrezioKg>
+      <Guztira>3.00</Guztira>
+    </Tiketa>
+    <tiketa>
+      <Produktua>Madaria</Produktua>
+      <Saltzailea>5</Saltzailea>
+      <Kiloak>1.80</Kiloak>
+      <PrezioKg>1.10</PrezioKg>
+      <Guztira>1.98</Guztira>
+    </Tiketa>
+  </Baskula>
+
+  <Baskula izena="haragitegia">
+    <tiketa>
+      <Produktua>Txahala</Produktua>
+      <Saltzailea>1</Saltzailea>
+      <Kiloak>0.75</Kiloak>
+      <PrezioKg>12.50</PrezioKg>
+      <Guztira>9.38</Guztira>
+    </Tiketa>
+    <tiketa>
+      <Produktua>Oiloa</Produktua>
+      <Saltzailea>1</Saltzailea>
+      <Kiloak>1.20</Kiloak>
+      <PrezioKg>5.40</PrezioKg>
+      <Guztira>6.48</Guztira>
+    </Tiketa>
+  </Baskula>
+
+  <Baskula izena="okindegia">
+    <tiketa>
+      <Produktua>Ogi zuria</Produktua>
+      <Saltzailea>1</Saltzailea>
+      <Kiloak>0.50</Kiloak>
+      <PrezioKg>2.00</PrezioKg>
+      <Guztira>1.00</Guztira>
+    </Tiketa>
+    <tiketa>
+      <Produktua>Opila</Produktua>
+      <Saltzailea>1</Saltzailea>
+      <Kiloak>0.30</Kiloak>
+      <PrezioKg>3.00</PrezioKg>
+      <Guztira>0.90</Guztira>
+    </Tiketa>
+  </Baskula>
+
+  <Baskula izena="txarkutegia">
+    <tiketa>
+      <Produktua>Urdaiazpikoa</Produktua>
+      <Saltzailea>1</Saltzailea>
+      <Kiloak>0.40</Kiloak>
+      <PrezioKg>18.00</PrezioKg>
+      <Guztira>7.20</Guztira>
+    </Tiketa>
+    <tiketa>
+      <Produktua>Txorizoa</Produktua>
+      <Saltzailea>1</Saltzailea>
+      <Kiloak>0.60</Kiloak>
+      <PrezioKg>9.50</PrezioKg>
+      <Guztira>5.70</Guztira>
+    </Tiketa>
+  </Baskula>
+</Eguna>
