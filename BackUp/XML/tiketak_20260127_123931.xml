@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Tiketak xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Tiketa>
+    <Baskula>2</Baskula>
+    <Langilea>0</Langilea>
+    <Produktua>11</Produktua>
+    <Prezioa>18</Prezioa>
+    <Kopurua>0.89</Kopurua>
+    <Prezioguztira>16.02</Prezioguztira>
+    <Data>2026-01-27T12:39:00</Data>
+  </Tiketa>
+  <Tiketa>
+    <Baskula>2</Baskula>
+    <Langilea>0</Langilea>
+    <Produktua>9</Produktua>
+    <Prezioa>18</Prezioa>
+    <Kopurua>0.03</Kopurua>
+    <Prezioguztira>0.54</Prezioguztira>
+    <Data>2026-01-27T12:39:00</Data>
+  </Tiketa>
+  <Tiketa>
+    <Baskula>4</Baskula>
+    <Langilea>4</Langilea>
+    <Produktua>21</Produktua>
+    <Prezioa>12</Prezioa>
+    <Kopurua>1.99</Kopurua>
+    <Prezioguztira>23.88</Prezioguztira>
+    <Data>2026-01-27T12:39:00</Data>
+  </Tiketa>
+  <Tiketa>
+    <Baskula>4</Baskula>
+    <Langilea>4</Langilea>
+    <Produktua>23</Produktua>
+    <Prezioa>9</Prezioa>
+    <Kopurua>1.56</Kopurua>
+    <Prezioguztira>14.04</Prezioguztira>
+    <Data>2026-01-27T12:39:00</Data>
+  </Tiketa>
+</Tiketak>

@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+	<xsd:element name="Tiketak">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="Tiketa" maxOccurs="unbounded" minOccurs="0">
+					<xsd:complexType>
+						<xsd:all>
+							<xsd:element name="Baskula" type="xsd:int" minOccurs="1"/>
+							<xsd:element name="Produktua" type="xsd:int" minOccurs="1"/>
+							<xsd:element name="Langilea" type="xsd:int" minOccurs="1"/>
+							<xsd:element name="Prezioa" type="xsd:decimal" minOccurs="1"/>
+							<xsd:element name="Kopurua" type="xsd:decimal" minOccurs="1"/>
+							<xsd:element name="Prezioguztira" type="xsd:decimal" minOccurs="1"/>
+							<xsd:element name="Data" type="xsd:dateTime" minOccurs="1"/>
+						</xsd:all>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xs:schema>
