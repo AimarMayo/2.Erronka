@@ -162,7 +162,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  // ========= DB MAP (zure screenshot-etik) =========
   const BASKULAK = {
     1: "Frutategia",
     2: "Harategia",
@@ -208,7 +207,6 @@
     24: { izena: "urdaiazpikoa", prezioa_kg: 35.0, baskula_id: 4 },
   };
 
-  // ========= STATE =========
   let allTickets = [];
   let filteredTickets = [];
   let sortState = { key: "date", dir: "asc" };
@@ -226,7 +224,6 @@
   const modal = new bootstrap.Modal(document.getElementById("ticketModal"));
   const detailDiv = document.getElementById("ticketDetail");
 
-  // ========= HELPERS =========
   const toNum = (v) => {
     if (v == null) return NaN;
     const s = String(v).trim().replace(",", ".");
@@ -261,7 +258,6 @@
     return `${d}/${m}/${y}`;
   }
 
-  // ========= ID -> NAME RESOLVERS =========
   function resolveSeller(raw) {
     const id = toNum(raw);
     if (Number.isFinite(id) && SALTZAILEAK[id] != null) return { id, name: SALTZAILEAK[id] };
@@ -370,7 +366,6 @@
     return tickets;
   }
 
-  // ========= RENDER =========
   function render() {
     tableBody.innerHTML = "";
 
@@ -429,7 +424,6 @@
     updateTopProducts();
   }
 
-  // ========= DETAIL MODAL =========
   function showDetail(t) {
     const sellerLine = (t.sellerId != null)
       ? `${safe(t.seller)} <span class="text-muted small">(ID: ${t.sellerId})</span>`
@@ -487,7 +481,6 @@
     modal.show();
   }
 
-  // ========= KPIs & TOP PRODUCTS =========
   function updateKPIs() {
     const validTotals = allTickets.map(t => t.total).filter(Number.isFinite);
     const sum = validTotals.reduce((a,b)=>a+b,0);
@@ -542,7 +535,6 @@
     });
   }
 
-  // ========= SEARCH & SORT =========
   searchInput.addEventListener("input", () => applyFilter());
 
   function applyFilter() {
@@ -572,7 +564,6 @@
     });
   });
 
-  // ========= LOADERS =========
   document.getElementById("btnFolder").addEventListener("click", async () => {
     if (!window.showDirectoryPicker) {
       alert("Zure nabigatzaileak ez du karpeta aukeratzea onartzen. Erabili Chrome edo Edge.");
@@ -618,3 +609,4 @@
 
 </body>
 </html>
+
