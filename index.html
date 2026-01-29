@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TicketBAI – XML Ticketak</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <style>
+    body { background:#f4fbf7; }
+    .card-soft { border:0; border-radius:18px; box-shadow:0 8px 25px rgba(0,0,0,.06); }
+    .pill { border-radius:999px; }
+    .pointer { cursor:pointer; }
+    .soft-border { border:2px dashed #1b8a5a33; border-radius:18px; }
+    .kpi-icon { width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:14px; background:#e9f8ef; font-weight:700; }
+    .kpi-value { font-size:1.8rem; font-weight:800; color:#0f7a4f; }
+    .kpi-label { color:#5b6b63; font-weight:600; }
+    .badge-ok { background:#dff7ea; color:#0f7a4f; border:1px solid #bdebd1; }
+    .badge-warn { background:#fff3cd; color:#7a5a00; border:1px solid #ffe69c; }
+    .badge-err { background:#f8d7da; color:#842029; border:1px solid #f1aeb5; }
+    th { user-select:none; }
+  </style>
+</head>
+
+<body>
+<nav class="navbar" style="background:#2aa36b;">
+  <div class="container">
+    <span class="navbar-brand text-white fw-bold">TicketBAI – XML Ticketen Ikuskatzailea</span>
+  </div>
+</nav>
+
+<div class="container my-4">
+
+  <!-- KPI -->
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-3">
+      <div class="card card-soft p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="kpi-label">Ticket kopurua</div>
+            <div class="kpi-value" id="kpiCount">0</div>
+          </div>
+          <div class="kpi-icon">🧾</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card card-soft p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="kpi-label">Guztira saldua</div>
+            <div class="kpi-value" id="kpiTotal">0.00 €</div>
+          </div>
+          <div class="kpi-icon">€</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card card-soft p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="kpi-label">Egun ezberdinak</div>
+            <div class="kpi-value" id="kpiDays">0</div>
+          </div>
+          <div class="kpi-icon">🗓️</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card card-soft p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="kpi-label">Eguneko batezbestekoa</div>
+            <div class="kpi-value" id="kpiAvg">0.00 €</div>
+          </div>
+          <div class="kpi-icon">📈</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload -->
+  <div class="card card-soft p-3 mb-3 soft-border">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+      <div>
+        <div class="fw-bold fs-5">XML ticketak kargatu</div>
+        <div class="text-muted">Hautatu karpeta bat .xml fitxategiekin (fitxategi bakoitzean Tiketa asko egon daitezke)</div>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-success pill px-4" id="btnFolder">📁 Karpeta aukeratu</button>
+        <label class="btn btn-outline-success pill px-4 mb-0">
+          ⬆️ Fitxategiak igo
+          <input type="file" id="fileInput" accept=".xml" multiple hidden>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- Top 5 products -->
+    <div class="col-12 col-lg-4">
+      <div class="card card-soft p-3 h-100">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="fs-4">🏆</span>
+          <div class="fw-bold fs-5">Top 5 Produktuak</div>
+        </div>
+        <div id="topProducts" class="list-group list-group-flush"></div>
+        <div class="text-muted small mt-2">Oharra: Produktua DBko izenera mapatzen da (ID -> izena).</div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="col-12 col-lg-8">
+      <div class="card card-soft p-3">
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <span class="fs-4">📋</span>
+            <div class="fw-bold fs-5">Ticket zerrenda</div>
+            <span class="badge text-bg-secondary" id="countBadge">0</span>
+          </div>
+          <div class="input-group" style="max-width:320px;">
+            <span class="input-group-text">🔎</span>
+            <input class="form-control" id="searchInput" placeholder="Bilatu..." />
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th class="pointer" data-sort="date">Data ⬍</th>
+                <th class="pointer" data-sort="time">Ordua ⬍</th>
+                <th class="pointer" data-sort="seller">Saltzailea ⬍</th>
+                <th class="pointer" data-sort="total">Guztira ⬍</th>
+                <th>Egoera</th>
+                <th>Produktua</th>
+              </tr>
+            </thead>
+            <tbody id="ticketTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="ticketModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Ticket xehetasunak</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Itxi"></button>
+      </div>
+      <div class="modal-body" id="ticketDetail"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // ========= DB MAP (zure screenshot-etik) =========
+  const BASKULAK = {
+    1: "Frutategia",
+    2: "Harategia",
+    3: "Okindegia",
+    4: "Txarkutegia",
+  };
+
+  const SALTZAILEAK = {
+    0: "autosaltzailea",
+    1: "lander",
+    2: "ander",
+    3: "mateo",
+    4: "unai",
+    5: "eber",
+    6: "igor",
+    7: "mario",
+  };
+
+  const PRODUKTUAK = {
+    1:  { izena: "anana",        prezioa_kg: 8.0,  baskula_id: 1 },
+    2:  { izena: "brokolia",     prezioa_kg: 5.2,  baskula_id: 1 },
+    3:  { izena: "marrubia",     prezioa_kg: 16.0, baskula_id: 1 },
+    4:  { izena: "gereziak",     prezioa_kg: 12.0, baskula_id: 1 },
+    5:  { izena: "limoiak",      prezioa_kg: 20.3, baskula_id: 1 },
+    6:  { izena: "mahatsa",      prezioa_kg: 9.0,  baskula_id: 1 },
+    7:  { izena: "istarrak",     prezioa_kg: 16.0, baskula_id: 2 },
+    8:  { izena: "kostila",      prezioa_kg: 20.3, baskula_id: 2 },
+    9:  { izena: "odolkia",      prezioa_kg: 18.0, baskula_id: 2 },
+    10: { izena: "oilaskoa",     prezioa_kg: 20.3, baskula_id: 2 },
+    11: { izena: "txorizoa",     prezioa_kg: 18.0, baskula_id: 2 },
+    12: { izena: "txuleta",      prezioa_kg: 18.0, baskula_id: 2 },
+    13: { izena: "txinbo",       prezioa_kg: 16.0, baskula_id: 3 },
+    14: { izena: "croasant",     prezioa_kg: 20.3, baskula_id: 3 },
+    15: { izena: "donuts",       prezioa_kg: 18.0, baskula_id: 3 },
+    16: { izena: "ogia",         prezioa_kg: 20.3, baskula_id: 3 },
+    17: { izena: "pastela",      prezioa_kg: 18.0, baskula_id: 3 },
+    18: { izena: "sandwich",     prezioa_kg: 18.0, baskula_id: 3 },
+    19: { izena: "bacon",        prezioa_kg: 11.0, baskula_id: 4 },
+    20: { izena: "jamonyor",     prezioa_kg: 9.0,  baskula_id: 4 },
+    21: { izena: "odolkia",      prezioa_kg: 12.0, baskula_id: 4 },
+    22: { izena: "salami",       prezioa_kg: 8.3,  baskula_id: 4 },
+    23: { izena: "txorizoa",     prezioa_kg: 9.0,  baskula_id: 4 },
+    24: { izena: "urdaiazpikoa", prezioa_kg: 35.0, baskula_id: 4 },
+  };
+
+  // ========= STATE =========
+  let allTickets = [];
+  let filteredTickets = [];
+  let sortState = { key: "date", dir: "asc" };
+
+  const tableBody = document.getElementById("ticketTable");
+  const topProductsDiv = document.getElementById("topProducts");
+  const searchInput = document.getElementById("searchInput");
+  const countBadge = document.getElementById("countBadge");
+
+  const kpiCount = document.getElementById("kpiCount");
+  const kpiTotal = document.getElementById("kpiTotal");
+  const kpiDays  = document.getElementById("kpiDays");
+  const kpiAvg   = document.getElementById("kpiAvg");
+
+  const modal = new bootstrap.Modal(document.getElementById("ticketModal"));
+  const detailDiv = document.getElementById("ticketDetail");
+
+  // ========= HELPERS =========
+  const toNum = (v) => {
+    if (v == null) return NaN;
+    const s = String(v).trim().replace(",", ".");
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  };
+
+  const fmtMoney = (n) => {
+    if (!Number.isFinite(n)) return "—";
+    return n.toFixed(2) + " €";
+  };
+
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function safe(v) {
+    if (v == null) return "—";
+    const s = String(v).trim();
+    return s === "" ? "—" : escapeHtml(s);
+  }
+
+  function formatDateEU(dateISO) {
+    if (!dateISO || dateISO === "—") return "—";
+    const [y,m,d] = dateISO.split("-");
+    if (!y || !m || !d) return dateISO;
+    return `${d}/${m}/${y}`;
+  }
+
+  // ========= ID -> NAME RESOLVERS =========
+  function resolveSeller(raw) {
+    const id = toNum(raw);
+    if (Number.isFinite(id) && SALTZAILEAK[id] != null) return { id, name: SALTZAILEAK[id] };
+    return { id: null, name: String(raw ?? "—") };
+  }
+
+  function resolveBaskula(raw) {
+    const id = toNum(raw);
+    if (Number.isFinite(id) && BASKULAK[id] != null) return { id, name: BASKULAK[id] };
+    return { id: null, name: String(raw ?? "—") };
+  }
+
+  function resolveProduct(raw) {
+    const id = toNum(raw);
+    if (Number.isFinite(id) && PRODUKTUAK[id] != null) return { id, name: PRODUKTUAK[id].izena };
+    return { id: null, name: String(raw ?? "—") };
+  }
+
+  // ========= CORE: PARSE XML (MULTI Tiketa per file) =========
+  function parseXmlFileToTickets(xmlText, filename) {
+    const xml = new DOMParser().parseFromString(xmlText, "text/xml");
+
+    const parseError = xml.getElementsByTagName("parsererror")[0];
+    if (parseError) {
+      return [{
+        id: crypto.randomUUID(),
+        sourceFile: filename,
+        dateISO: "—",
+        time: "—",
+        seller: "—",
+        sellerId: null,
+        total: NaN,
+        baskula: "—",
+        baskulaId: null,
+        produktua: "—",
+        produktuaId: null,
+        prezioa: NaN,
+        kopurua: NaN,
+        prezioguztira: NaN,
+        status: "ERROR",
+        rawXml: xmlText
+      }];
+    }
+
+    const nodes = xml.getElementsByTagName("Tiketa");
+    const tickets = [];
+
+    const getChild = (node, tag) => {
+      const el = node.getElementsByTagName(tag)[0];
+      if (!el || el.textContent == null) return "—";
+      const v = el.textContent.trim();
+      return v === "" ? "—" : v;
+    };
+
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i];
+
+      const dt = getChild(n, "Data");
+      const dateISO = (dt !== "—" && dt.includes("T")) ? dt.split("T")[0] : "—";
+      const time = (dt !== "—" && dt.includes("T")) ? dt.split("T")[1] : "—";
+
+      const sellerRaw   = getChild(n, "Langilea");
+      const baskulaRaw  = getChild(n, "Baskula");
+      const productRaw  = getChild(n, "Produktua");
+
+      const sellerObj  = resolveSeller(sellerRaw);
+      const baskulaObj = resolveBaskula(baskulaRaw);
+      const prodObj    = resolveProduct(productRaw);
+
+      const totalStr = getChild(n, "Prezioguztira");
+      const totalNum = toNum(totalStr);
+
+      const hasDate = dateISO !== "—";
+      const hasTotal = Number.isFinite(totalNum);
+
+      let status = "OK";
+      if (!hasDate || !hasTotal) status = "WARN";
+
+      tickets.push({
+        id: crypto.randomUUID(),
+        indexInFile: i + 1,
+        sourceFile: filename,
+
+        dateISO,
+        time,
+
+        seller: sellerObj.name,
+        sellerId: sellerObj.id,
+
+        baskula: baskulaObj.name,
+        baskulaId: baskulaObj.id,
+
+        produktua: prodObj.name,
+        produktuaId: prodObj.id,
+
+        prezioa: toNum(getChild(n, "Prezioa")),
+        kopurua: toNum(getChild(n, "Kopurua")),
+        prezioguztira: totalNum,
+        total: totalNum,
+
+        status,
+        rawXmlNode: n.outerHTML
+      });
+    }
+
+    return tickets;
+  }
+
+  // ========= RENDER =========
+  function render() {
+    tableBody.innerHTML = "";
+
+    const keyMap = { date: "dateISO", time: "time", seller: "seller", total: "total" };
+    const realKey = keyMap[sortState.key] || sortState.key;
+
+    filteredTickets.sort((a, b) => {
+      const dir = sortState.dir;
+      let va = a[realKey], vb = b[realKey];
+
+      if (realKey === "total") {
+        va = Number.isFinite(a.total) ? a.total : -Infinity;
+        vb = Number.isFinite(b.total) ? b.total : -Infinity;
+      } else {
+        va = (va ?? "").toString();
+        vb = (vb ?? "").toString();
+      }
+
+      if (va < vb) return dir === "asc" ? -1 : 1;
+      if (va > vb) return dir === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    for (const t of filteredTickets) {
+      const tr = document.createElement("tr");
+      tr.classList.add("pointer");
+
+      const statusBadge =
+        t.status === "OK" ? `<span class="badge badge-ok">OK</span>` :
+        t.status === "WARN" ? `<span class="badge badge-warn">Osatu gabe</span>` :
+        `<span class="badge badge-err">Errorea</span>`;
+
+      // 👇 HEMEN: "Iturria" kendu eta "Produktua" jarri
+      // Produktuaren izena erakutsi + ID txiki bat (badago)
+      const productCell = `
+        <span class="fw-semibold">${safe(t.produktua)}</span>
+        ${t.produktuaId != null ? `<span class="badge text-bg-light ms-2">#${t.produktuaId}</span>` : ""}
+      `;
+
+      tr.innerHTML = `
+        <td>${formatDateEU(t.dateISO)}</td>
+        <td>${safe(t.time)}</td>
+        <td>${safe(t.seller)}</td>
+        <td class="fw-bold text-success">${fmtMoney(t.total)}</td>
+        <td>${statusBadge}</td>
+        <td class="text-muted">${productCell}</td>
+      `;
+
+      tr.addEventListener("click", () => showDetail(t));
+      tableBody.appendChild(tr);
+    }
+
+    countBadge.textContent = `${filteredTickets.length}/${allTickets.length}`;
+
+    updateKPIs();
+    updateTopProducts();
+  }
+
+  // ========= DETAIL MODAL =========
+  function showDetail(t) {
+    const sellerLine = (t.sellerId != null)
+      ? `${safe(t.seller)} <span class="text-muted small">(ID: ${t.sellerId})</span>`
+      : safe(t.seller);
+
+    const baskulaLine = (t.baskulaId != null)
+      ? `${safe(t.baskula)} <span class="text-muted small">(ID: ${t.baskulaId})</span>`
+      : safe(t.baskula);
+
+    const prodLine = (t.produktuaId != null)
+      ? `${safe(t.produktua)} <span class="text-muted small">(ID: ${t.produktuaId})</span>`
+      : safe(t.produktua);
+
+    detailDiv.innerHTML = `
+      <div class="mb-3">
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge text-bg-dark">${escapeHtml(t.sourceFile)} #${t.indexInFile ?? 1}</span>
+          ${t.status === "OK"
+            ? `<span class="badge badge-ok">OK</span>`
+            : t.status === "WARN"
+              ? `<span class="badge badge-warn">Osatu gabe</span>`
+              : `<span class="badge badge-err">Errorea</span>`}
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <div class="card card-soft p-3">
+            <div class="fw-bold mb-2">Datuak</div>
+            <div><strong>Data:</strong> ${formatDateEU(t.dateISO)}</div>
+            <div><strong>Ordua:</strong> ${safe(t.time)}</div>
+            <div><strong>Saltzailea (Langilea):</strong> ${sellerLine}</div>
+            <div><strong>Baskula:</strong> ${baskulaLine}</div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <div class="card card-soft p-3">
+            <div class="fw-bold mb-2">Produktu lerroa</div>
+            <div><strong>Produktua:</strong> ${prodLine}</div>
+            <div><strong>Prezioa:</strong> ${fmtMoney(t.prezioa)}</div>
+            <div><strong>Kopurua:</strong> ${Number.isFinite(t.kopurua) ? t.kopurua : "—"}</div>
+            <div><strong>Guztira:</strong> <span class="fw-bold text-success">${fmtMoney(t.total)}</span></div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card card-soft p-3">
+            <div class="fw-bold mb-2">XML (Tiketa node-a)</div>
+            <pre class="mb-0" style="white-space:pre-wrap; word-break:break-word;">${escapeHtml(t.rawXmlNode || "")}</pre>
+          </div>
+        </div>
+      </div>
+    `;
+    modal.show();
+  }
+
+  // ========= KPIs & TOP PRODUCTS =========
+  function updateKPIs() {
+    const validTotals = allTickets.map(t => t.total).filter(Number.isFinite);
+    const sum = validTotals.reduce((a,b)=>a+b,0);
+
+    const daysSet = new Set(allTickets.map(t => t.dateISO).filter(d => d && d !== "—"));
+    const days = daysSet.size;
+
+    kpiCount.textContent = String(allTickets.length);
+    kpiTotal.textContent = fmtMoney(sum);
+    kpiDays.textContent = String(days);
+    kpiAvg.textContent = days > 0 ? fmtMoney(sum / days) : "0.00 €";
+  }
+
+  function updateTopProducts() {
+    const map = new Map(); // produktuaName -> {qtySum,totalSum}
+
+    for (const t of allTickets) {
+      const pRaw = (t.produktua ?? "").toString().trim();
+      if (!pRaw || pRaw === "—") continue;
+
+      const qty = Number.isFinite(t.kopurua) ? t.kopurua : 0;
+      const tot = Number.isFinite(t.total) ? t.total : 0;
+
+      if (!map.has(pRaw)) map.set(pRaw, { qtySum: 0, totalSum: 0 });
+      const obj = map.get(pRaw);
+      obj.qtySum += qty;
+      obj.totalSum += tot;
+    }
+
+    const arr = [...map.entries()]
+      .map(([product, v]) => ({ product, ...v }))
+      .sort((a,b) => b.totalSum - a.totalSum)
+      .slice(0, 5);
+
+    topProductsDiv.innerHTML = "";
+    if (arr.length === 0) {
+      topProductsDiv.innerHTML = `<div class="text-muted">Ez dago daturik.</div>`;
+      return;
+    }
+
+    arr.forEach((x, i) => {
+      const div = document.createElement("div");
+      div.className = "list-group-item d-flex justify-content-between align-items-center";
+      div.innerHTML = `
+        <div>
+          <div class="fw-bold">${i+1}. ${escapeHtml(String(x.product))}</div>
+          <div class="text-muted small">${x.qtySum.toFixed(2)} unitate</div>
+        </div>
+        <div class="fw-bold text-success">${fmtMoney(x.totalSum)}</div>
+      `;
+      topProductsDiv.appendChild(div);
+    });
+  }
+
+  // ========= SEARCH & SORT =========
+  searchInput.addEventListener("input", () => applyFilter());
+
+  function applyFilter() {
+    const q = searchInput.value.trim().toLowerCase();
+
+    filteredTickets = allTickets.filter(t => {
+      const hay = [
+        t.dateISO, t.time, t.seller, t.sourceFile, t.produktua, t.baskula,
+        t.sellerId, t.produktuaId, t.baskulaId
+      ].map(x => (x ?? "").toString().toLowerCase()).join(" | ");
+      return hay.includes(q);
+    });
+
+    render();
+  }
+
+  document.querySelectorAll("th[data-sort]").forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.getAttribute("data-sort");
+      if (sortState.key === key) {
+        sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
+      } else {
+        sortState.key = key;
+        sortState.dir = "asc";
+      }
+      render();
+    });
+  });
+
+  // ========= LOADERS =========
+  document.getElementById("btnFolder").addEventListener("click", async () => {
+    if (!window.showDirectoryPicker) {
+      alert("Zure nabigatzaileak ez du karpeta aukeratzea onartzen. Erabili Chrome edo Edge.");
+      return;
+    }
+
+    const dirHandle = await showDirectoryPicker();
+    const newTickets = [];
+
+    for await (const entry of dirHandle.values()) {
+      if (entry.kind === "file" && entry.name.toLowerCase().endsWith(".xml")) {
+        const file = await entry.getFile();
+        const text = await file.text();
+        const parsed = parseXmlFileToTickets(text, entry.name);
+        newTickets.push(...parsed);
+      }
+    }
+
+    setTickets(newTickets);
+  });
+
+  document.getElementById("fileInput").addEventListener("change", async (e) => {
+    const files = [...(e.target.files || [])].filter(f => f.name.toLowerCase().endsWith(".xml"));
+    const newTickets = [];
+
+    for (const f of files) {
+      const text = await f.text();
+      const parsed = parseXmlFileToTickets(text, f.name);
+      newTickets.push(...parsed);
+    }
+
+    setTickets(newTickets);
+    e.target.value = "";
+  });
+
+  function setTickets(tickets) {
+    allTickets = tickets;
+    filteredTickets = [...allTickets];
+    sortState = { key: "date", dir: "asc" };
+    applyFilter();
+  }
+</script>
+
+</body>
+</html>
